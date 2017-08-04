@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yc.travelWorld.mapper.IBlogAdminMapper">
+	<!-- 以接口中的方法名为id值 -->
+	<insert id="add" parameterType="BlogAdmin">
+		insert into blogAdmin values(null,#{aname},#{pwd},#{photo})
+	</insert>
+	
+	<update id="update" parameterType="BlogAdmin">
+		update blogAdmin set aname=#{aname},pwd=#{pwd},photo=#{photo} where aid=#{aid}
+	</update>
+	
+	<delete id="delete" parameterType="Collection">
+		delete from blogAdmin where aid in
+		<foreach collection="array" item="aid" open="(" separator="," close=")">
+			#{aid}
+		</foreach>
+	</delete>
+	
+	<select id="login" parameterType="BlogAdmin" resultType="BlogAdmin">
+		select aid,aname,pwd,photo from blogAdmin where aname=#{aname} and pwd=#{pwd}
+	</select>
+	
+	<select id="findAll" resultType="BlogAdmin">
+		select aid,aname,pwd,photo from blogAdmin order by aid
+	</select>
+	  
+	<select id="findByPage" resultType="BlogAdmin" parameterType="Map">
+		select aid,aname,pwd,photo from blogAdmin limit #{start},#{pageSize}
+	</select>
+	
+	<select id="find" parameterType="JsonObject" resultMap="blogAdminByJson">
+		select count(aid)  total,#{pageNo}  pageNo,#{pageSize}  pageSize,(#{pageNo}-1)*#{pageSize}  start from blogAdmin
+	</select>
+
+	<resultMap type="JsonObject" id="blogAdminByJson" autoMapping="true">
+		<result column="pageNo" property="pageNo"/>
+		<result column="pageSize" property="pageSize"/>
+		<collection property="rows" column="{start=start,pageSize=pageSize}" ofType="BlogAdmin" select="findByPage"></collection>
+	</resultMap>
+	
+	<select id="total" resultType="Integer">
+		select count(aid)  total from blogAdmin
+	</select>
+	
+</mapper>
